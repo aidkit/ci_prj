@@ -1,11 +1,9 @@
 ---
-
 - hosts: all
-  become: ture
+  become: true
   tasks:
     - name: yum update
       yum:
         name: '*'
         state: latest
         update_cache: yes
-        

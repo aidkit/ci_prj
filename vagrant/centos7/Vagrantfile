@@ -13,7 +13,7 @@ Vagrant.configure("2") do |config|
   # Every Vagrant development environment requires a box. You can search for
   # boxes at https://vagrantcloud.com/search.
   config.vm.box = "centos/7"
-  config.disksize.size = '20GB'
+  config.disksize.size = '40GB'
 
   config.vm.provider "virtualbox" do |vb|
     vb.cpus = 2
