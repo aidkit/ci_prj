@@ -1,0 +1,21 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+# 以下の場合、poll=0を設定しており、ポーリングは行われず且つasyncの時間を待たずに完全に非同期処理となり
+# 次のタスクを実行する
+    - name: サーバ再起動
+      shell: sleep 2 && shutdown -r now "サーバ再起動"
+      async: 1
+      poll: 0
+#      ignore_errors: true
+      when: selinux_result.stdout != "Disabled"
+      tags: 
+        - reboot_os
+
+    - name: サーバ再起動待ち
+      local_action: wait_for host={{ inventory_hostname }} port=22 delay=10
+      when: selinux_result.stdout != "Disabled"
+      tags: 
+        - reboot_os

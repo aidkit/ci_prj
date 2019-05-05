@@ -1,0 +1,19 @@
+#
+# inventories/vm/all.yml
+# 
+stage: vm
+ssh_remote_user: vagrant
+
+usergroup:
+  user:
+    name: micadmin
+    group: micadmin
+    uid: 1200
+    gid: 1200
+    home: /home/micadmin
+    shell: /bin/bash
+    passwd: micadmin
+
+  group:
+    name: micadmin
+    gid: 1200

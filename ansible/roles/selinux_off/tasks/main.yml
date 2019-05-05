@@ -1,0 +1,26 @@
+---
+- hosts: all
+  become: true
+  tasks:
+
+    - name: SELinuxのDisable状態の確認
+      shell: "getenforce"
+      register: selinux_result
+      tags: 
+        - selinux
+
+    - name: Install libselinux-python
+      yum:
+        name: 'libselinux-python'
+        state: present
+      when: selinux_result.stdout != "Disabled"  
+      tags: 
+        - selinux
+
+    - name: SELinux Disabled
+      selinux:
+        state: disabled
+      when: selinux_result.stdout != "Disabled"
+      tags: 
+        - selinux
+

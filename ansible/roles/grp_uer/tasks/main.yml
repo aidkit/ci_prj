@@ -1,0 +1,20 @@
+---
+- hosts: all
+  become: true
+  vars_files:
+    - ../../../inventories/{{stage}}/all.yml
+  tasks:
+    - name: create group
+      group: 
+        name: {{usergroup.group.name}}
+        gid: {{usergroup.group.gid}}
+
+    - name: add users that join to group (wheel and usergroup)
+      user: 
+        name: {{usergroup.user.name}}
+        uid: {{usergroup.user.uid}}
+        state: present
+        password: {{usergroup.user.passwd}}
+        groups: {{usergroup.user.group}}
+
+
