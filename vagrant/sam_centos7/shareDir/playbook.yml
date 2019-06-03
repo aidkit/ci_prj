@@ -1,0 +1,122 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: yum update
+      yum:
+        name: '*'
+        state: latest
+        update_cache: yes
+
+    - name: yum Install Package
+      yum:
+        name: "{{ Packges }}"
+        state: latest
+        update_cache: yes
+      vars:
+        Packges:
+          - ntp
+          - git
+          - curl
+          - vim
+          - python
+          - python-setuptools
+
+    - name: install epel-release
+      yum:
+        name: epel-release
+        state: present
+
+# python-pip インストール
+    - name: install python-pip
+      yum:
+        name: python-pip
+        state: present
+        enablerepo: epel
+
+# python3系 インストール
+    - name: install ius-release
+      get_url:
+        url: https://dl.iuscommunity.org/pub/ius/stable/CentOS/7/x86_64/ius-release-1.0-15.ius.centos7.noarch.rpm
+        dest: /usr/local/src/ius-release-1.0-15.ius.centos7.noarch.rpm
+
+    - name: IUSのリポジトリをインストール
+      yum: name=/usr/local/src/ius-release-1.0-15.ius.centos7.noarch.rpm
+
+    - name: install python3
+      yum:
+        name: "{{ python3Package }}"
+        state: latest
+        update_cache: yes
+      vars:
+        python3Package:
+          - python36u
+          - python36u-devel
+          - python36u-libs
+
+    - name: statCheck
+      stat:
+        path: /usr/bin/python3
+      register: python3_link
+
+    - name: python3 Link
+      command: ln -s /usr/bin/python3.6 /usr/bin/python3
+      when: not python3_link.stat.exists
+
+# python3 インストール
+    - name: install python3
+      yum:
+        name: python36u-pip
+        state: present
+        enablerepo: ius
+
+# awscli インストール
+    - name: pip install awscli
+      pip:
+        name: awscli
+# Docker-ce インストール
+    - name: install yum-utils
+      yum:
+        name: yum-utils
+        state: present
+
+    - name: add docker repo
+      shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+      args:
+        chdir: "/etc/yum.repos.d"
+        creates: docker-ce.repo
+
+    - name: install docker-ce
+      yum:
+        name: docker-ce
+        state: present
+
+    - name: add group
+      user:
+        name: vagrant
+        groups: docker
+        append: yes
+      tags: dockerhost
+
+    - name: restart docker
+      systemd:
+        name: docker.service
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+
+# aws-sam-cli インストール
+    - name: pip upgrade
+      command: python3 -m ensurepip --upgrade
+
+    - name: pip install aws-sam-cli
+      command: pip3 install --user aws-sam-cli
+
+
+    - name: SAM Version
+      command: sam --version
+      register: sam_ver
+
+    - name: sam version Debug
+      debug:
+        var: sam_ver.stdout
