@@ -61,6 +61,15 @@
     debug:
       var: docker_ver.stdout
 
+  - name: install python-pip
+    apt: name="{{ item }} state=present
+    with_items:
+      - python-pip
+
+  - name: install docker-compose
+    pip:
+      name: docker-compose
+
 # Settingfile Deploy
   - name: AWS configure file Dirctory Make
     file:
