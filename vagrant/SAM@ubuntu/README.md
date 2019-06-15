@@ -134,3 +134,56 @@ tera term等でアクセスする。
 		{"statusCode": 200, "body": "{\"message\": \"hello world\"}"}
 		~~~
 
+## S3とDynamoDBを扱う部分を実装
+- S3とDynamoDBをエミュレートするために、LocalStackを使用する
+https://github.com/localstack/localstack
+
+- LocalStack自体はdockerで立ち上げる。以下ファイルを作成する。
+	- docker-compose.yml
+	~~~
+	version: "3.3"
+
+	services:
+	localstack:
+		container_name: localstack
+		image: localstack/localstack
+		ports:
+		- "4569:4569"	# dynamodb
+		- "4572:4572"	# s3
+		environment:
+		- SERVICES=dynamodb,s3
+		- DEFAULT_REGION=ap-northeast-1
+		- DOCKER_HOST=unix:///var/run/docker.sock
+	~~~
+
+	- docker-composeで起動
+	~~~
+	$ docker-compose up
+	~~~
+	### LocalStack用credentialの作成
+	- LocalStack用にcredential情報を追加します
+
+	~/.aws/credentials
+	~~~
+	[localstack]
+	aws_access_key_id = dummy
+	aws_secret_access_key = dummy
+	~~~
+	~/.aws/config
+	~~~
+	[profile localstack]
+	region = ap-northeast-1
+	output = json
+	~~~
+	### LocalStack上にDynamoDBのテーブルを作成する場合
+	~~~
+	aws dynamodb create-table \
+	--table-name Music \
+	--attribute-definitions \
+	--attribute-definitions \
+		AttributeName=Artist,AttributeType=S \
+		AttributeName=SongTitle,AttributeType=S \
+	--key-schema AttributeName=Artist,KeyType=HASH AttributeName=SongTitle,KeyType=RANGE \
+	--provisioned-throughput ReadCapacityUnits=1,WriteCapacityUnits=1 \
+	--endpoint-url http://localhost:4569 --profile localstack
+	~~~

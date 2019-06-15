@@ -62,7 +62,7 @@
       var: docker_ver.stdout
 
   - name: install python-pip
-    apt: name="{{ item }} state=present
+    apt: name="{{ item }}" state=present
     with_items:
       - python-pip
 
@@ -83,6 +83,14 @@
     copy:
       src: config
       dest: /home/vagrant/.aws/config
+      owner: vagrant
+      group: vagrant
+      mode: 0644
+
+  - name: LocalStack credentials file
+    copy:
+      src: credentials
+      dest: /home/vagrant/.aws/credentials
       owner: vagrant
       group: vagrant
       mode: 0644
