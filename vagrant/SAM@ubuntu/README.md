@@ -158,7 +158,7 @@ https://github.com/localstack/localstack
 
 	- docker-composeで起動
 	~~~
-	$ docker-compose up
+	$ docker-compose up -d
 	~~~
 	### LocalStack用credentialの作成
 	- LocalStack用にcredential情報を追加します
