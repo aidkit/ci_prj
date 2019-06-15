@@ -1,0 +1,154 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: yum Install Development Package
+      yum:
+        name: "@Development tools"
+        state: present
+
+    - name: yum Install Package
+      yum:
+        name: "{{ Packges }}"
+        state: present
+        update_cache: yes
+      vars:
+        Packges:
+          - ntp
+          - git
+          - curl
+          - vim
+          - python
+          - python-devel
+
+    - name: start ntpd
+      systemd:
+        name: ntpd.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: set timezone to Asia/Tokyo
+      timezone:
+        name: Asia/Tokyo
+
+    - name: SELinuxのDisable設定
+      selinux:
+        state: disabled
+
+    - name: get get-pip.py
+      command: curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+
+    - name: Install get-pip.py
+      command: python get-pip.py
+
+    - name: upgrade pip
+      command: pip install --upgrade pip
+
+# Python3 Install
+    - name: yum Install IUS Community Project
+      yum:
+        name: https://centos7.iuscommunity.org/ius-release.rpm
+        state: present
+
+    - name: yum Install IUS Community Project
+      yum:
+        name: "{{ Python3Packges }}"
+        state: present
+      vars:
+        Python3Packges:
+          - python36u
+          - python36u-devel
+          - python36u-libs
+
+    - name: Link  python3
+      command: ln -s /usr/bin/python3.6 /usr/bin/python3
+      args:
+          creates: /usr/bin/python3
+
+# pip3 Install
+    - name: pip3 Install
+      yum:
+        name: python36u-pip
+        state: present
+
+    - name: upgrade  python3
+      command: python3 -m ensurepip --upgrade
+
+    - name: Link  pip3
+      command: ln -s /usr/bin/pip3.6 /usr/bin/pip3
+      args:
+          creates: /usr/bin/pip3
+
+# Docker-ce
+    - name: yum Docker-ce Install Package
+      yum:
+        name: "{{ DcokerPackges }}"
+        state: latest
+        update_cache: yes
+      vars:
+        DcokerPackges:
+          - yum-utils
+          - device-mapper-persistent-data
+          - lvm2
+
+    - name: add docker repo
+      shell: "yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo"
+      args:
+        chdir: "/etc/yum.repos.d"
+        creates: docker-ce.repo
+
+    - name: install docker-ce
+      yum: name=docker-ce state=present
+
+    - name: add group
+      user: name=vagrant groups=docker append=yes
+      tags: dockerhost
+      become: True
+
+    - name: restart docker
+      systemd:
+        name: docker.service
+        state: restarted
+        daemon_reload: yes
+        enabled: yes
+
+    - name: pip upgrade
+      pip:
+        name: pip
+        extra_args: --upgrade
+
+    - name: setuptools upgrade
+      pip:
+        name: setuptools
+        extra_args: --upgrade
+
+    - name: pip install awscli
+      pip:
+        name: awscli
+
+# Settingfile Deploy
+    - name: AWS configure file Dirctory Make
+      file:
+        path: /home/vagrant/.aws
+        state: directory
+        owner: vagrant
+        group: vagrant
+        mode: 0755
+
+    - name: AWS configure file
+      copy:
+        src: config
+        dest: /home/vagrant/.aws/config
+        owner: vagrant
+        group: vagrant
+        mode: 0644
+
+    - name: pip3 install aws-sam-cli
+      pip:
+        name: aws-sam-cli
+        extra_args: --user
+
+    - name: Cmd Install aws-sam-cli
+      command: pip3 install --user aws-sam-cli
+

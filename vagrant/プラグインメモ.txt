@@ -1,6 +1,0 @@
-vagrant plugin install vagrant-vbguest
-
-vagrant plugin install vagrant-disksize
- https://qiita.com/yut_h1979/items/c84c490053877beee5c1
-
- 

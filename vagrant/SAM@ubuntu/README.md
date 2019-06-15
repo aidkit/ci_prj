@@ -1,7 +1,7 @@
-# AWS SAM @ CentOS7(vagrant)
+# AWS SAM @ Ubuntu(vagrant)
 
 ## 概要
-- vagrantにて作成されたCentOS7のVM環境に、AWS SAMを構築し、サンプルプログラムの動作確認をする。
+- vagrantにて作成されたUbuntuのVM環境に、AWS SAMを構築し、サンプルプログラムの動作確認をする。
 
 ### 環境(構築時の環境)
 - Windows10 pro
@@ -105,7 +105,7 @@ tera term等でアクセスする。
 	~~~
 
 - aws-sam-cliの動作確認
-	- 以下コマンドを実行し、「Hello Wolrd」プロジェクトの実行が」できることを確認する。
+	- 以下コマンドを実行し、「Hello Wolrd」プロジェクトの実行ができることを確認する。
 		- testプロジェクトの作成
 		~~~
 		$ cd ~

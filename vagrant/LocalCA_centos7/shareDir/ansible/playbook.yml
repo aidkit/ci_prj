@@ -1,0 +1,35 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: upgrade all packages
+      yum: name=* state=latest
+
+    - name: yum Install Package
+      yum:
+        name: "{{ Packges }}"
+        state: present
+        update_cache: yes
+      vars:
+        Packges:
+          - ntp
+          - git
+          - curl
+          - vim
+          - openssl
+
+    - name: SELinuxのDisable設定
+      selinux:
+        state: disabled
+
+    - name: set timezone to Asia/Tokyo
+      timezone:
+        name: Asia/Tokyo
+
+    - name: start ntpd
+      systemd:
+        name: ntpd.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
