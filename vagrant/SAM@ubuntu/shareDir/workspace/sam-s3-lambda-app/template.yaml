@@ -8,11 +8,11 @@ Description: >
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
-    Timeout: 3
+    Timeout: 100
 
 Resources:
   S3DynamoFunction:
-    Type: AWS::Serverless::Function:
+    Type: AWS::Serverless::Function
     Properties:
       CodeUri: s3_dynamo/build/
       Handler: app.lambda_handler
