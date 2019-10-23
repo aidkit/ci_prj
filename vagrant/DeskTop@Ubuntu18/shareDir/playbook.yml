@@ -1,0 +1,15 @@
+---
+
+- hosts: all
+  become: yes
+  tasks:
+  - name: Install a list of packages
+    apt:
+      name: "{{ packages }}"
+      update_cache: yes
+      state: latest
+    vars:
+      packages:
+      - git
+      - vim
+      - python3-pip
