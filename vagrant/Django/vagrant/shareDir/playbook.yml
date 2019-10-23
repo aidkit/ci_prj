@@ -1,0 +1,58 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+
+    - name: install yum repository in order to install the newest git
+      yum:
+        name: 'https://centos7.iuscommunity.org/ius-release.rpm'
+        state: present
+      register: ius_repository
+
+    - name: disable ius repository
+      shell: yum-config-manager --disable ius
+      when: ius_repository.changed
+
+    - name: yum Install Package
+      yum:
+        name: "{{ Packges }}"
+        state: present
+        update_cache: yes
+      vars:
+        Packges:
+          - ntp
+          - git
+          - curl
+          - vim
+          - openssl
+          - python36 
+          - python36-libs
+          - python36-devel
+
+    - name: SELinuxのDisable設定
+      selinux:
+        state: disabled
+
+    - name: firewalldの無効化
+      systemd:
+        name: firewalld
+        state: stopped
+        enabled: false
+    
+    - name: set timezone to Asia/Tokyo
+      timezone:
+        name: Asia/Tokyo
+
+    - name: start ntpd
+      systemd:
+        name: ntpd.service
+        state: started
+        daemon_reload: yes
+        enabled: yes
+
+    - name: Create symbolic link
+      file: 
+        src: "/usr/bin/pip3.6"
+        dest: "/usr/local/bin/pip"
+        state: link
+
